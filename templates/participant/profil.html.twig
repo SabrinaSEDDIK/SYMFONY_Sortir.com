@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+{% block title %}
+{{ parent() }} | Profil de {{ profil.pseudo }}
+{% endblock%}
+
+{% block header %}
+    {{ parent() }}
+    <h1 id="title-profil">Profil de {{ profil.pseudo }}</h1>
+    {% if app.user.image %}
+        <img src="{{ asset('img/uploads/'~ app.user.image.nom) }}" alt="Ma Photo" class="photo_profil img-fluid">
+    {% else %}
+        <img src="{{ asset('img/uploads/objet_vide.png') }}" alt="Ma Photo" class="photo_profil img-fluid">
+    {% endif %}
+{% endblock%}
+
+{% block body %}
+    <div id="table-profil">
+        <table class="table table-striped text-center">
+            <thead>
+                <th>INFOS</th>
+            </thead>
+            <tbody>
+                <table class="table table-striped text-center">
+                    <tr>
+                        <td class="text-bold">Prénom : </td>
+                        <td>{{ profil.prenom }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">Nom : </td>
+                        <td>{{ profil.nom }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">Tél : </td>
+                        <td>{{ profil.telephone }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">Email : </td>
+                        <td>{{ profil.email }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-bold">Campus : </td>
+                        <td>{{ campus.nom }}</td>
+                    </tr>
+                </table>
+            </tbody>
+        </table>
+        <div class=" text-center">
+            {% if app.user.id == profil.id %}
+                <a href={{path('participant_monprofil')}}><button class="btn btn-primary ">Modifier</button></a>
+            {% endif %}
+            <a href={{path('main_home')}}><button class="btn btn-primary ">Retour</button></a>
+        </div>
+    </div>
+{% endblock%}

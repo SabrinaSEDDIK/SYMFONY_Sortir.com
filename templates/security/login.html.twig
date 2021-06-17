@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Connexion{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="container">
+        <div id="logo-login">
+            <figure><img src="{{ asset('img/unnamed.png') }}" alt="Logo Sortir.com" class="img-fluid"></figure>
+        </div>
+        <div class="titre-appli text-center">Sortir.com</div>
+        <div class ="sous-titre-appli text-center">Les sorties des étudiants de l'ENI</div>
+
+        <form method="post">
+
+            {% if app.user %}
+                <div class="mb-3">
+                    You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+                </div>
+            {% endif %}
+
+            <div class="mx-auto formulaire-login mb-5">
+                <label for="inputEmail">Email ou pseudo : </label>
+                {% if last_username %}
+                    <input type="text" value="{{ last_username }}" name="pseudoMail" id="inputEmail" class="form-control mb-3" autocomplete="pseudoMail" required autofocus>
+                {% else %}
+                    <input type="text" value="{{ app.request.cookies.get('REMEMBERME') }}" name="pseudoMail" id="inputEmail" class="form-control mb-3" autocomplete="pseudoMail" required autofocus>
+                {% endif %}
+
+                <label for="inputPassword">Mot de passe : </label>
+                <input type="password" name="password" id="inputPassword" class="form-control mb-3" autocomplete="current-password" required>
+                <input type="hidden" name="_csrf_token"
+                       value="{{ csrf_token('authenticate') }}"
+                >
+
+                <div class="checkbox mb-3">
+                    <label class="no-required">
+                        <input type="checkbox" name="_remember_me"> Se souvenir de moi
+                    </label>
+                </div>
+
+                <div class="flex justify-content-around">
+                    <a href="{{ path('forgotten_password') }}">Mot de passe oublié ?</a>
+
+                    <button class="btn btn-md btn-primary px-3" type="submit">Entrer</button>
+                </div>
+
+            </div>
+
+        </form>
+
+{#        <div id="rond-login"></div>#}
+{#        <figure><img src="{{ asset('img/eni.png') }}" alt="LogoENI" id="logo-eni-login"></figure>#}
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+        {{parent()}}
+        <script>
+        $(document).ready(()=>{
+            $("#nav").hide();
+            $("#footer").hide();
+        })
+        </script>
+{% endblock %}

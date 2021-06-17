@@ -1,0 +1,120 @@
+
+<tr>
+    <td>
+        {{ sortie.nomSortie }}
+    </td>
+
+    <td>
+        {{ sortie.dateHeureDebut | date('d/m/Y H:i') }}
+    </td>
+
+    <td>
+        {{ sortie.dateLimiteInscription | date('d/m/Y') }}
+    </td>
+
+    <td>
+        {{ sortie.nbParticipant }}  / {{ sortie.nbInscriptionsMax }}
+    </td>
+
+    <td>
+        {{ sortie.libelleEtat }}
+    </td>
+
+    <td style="text-align:center;">
+        {% if sortie.id in sortieParticipants | keys %}
+            X
+            {% set inscrit = 'true' %}
+        {% endif %}
+    </td>
+
+    <td>
+        <a href="{{ path('participant_profil', {id: sortie.idOrganisateur}) }}">{{ sortie.nomOrganisateur ~' '~ sortie.prenomOrganisateur }}</a>
+
+    </td>
+
+    <td>
+
+        {# Affichage des boutons quand la sortie est "Créée" #}
+        {# Seul l'organisateur peut voir cette sortie #}
+        {% if sortie.libelleEtat == 'Créée' %}
+            {% if app.user.id == sortie.idOrganisateur %}
+                <a href="{{ path('sortie_modifier', {id: sortie.id}) }}">Modifier</a>
+                <a href="{{ path('sortie_publier', {id: sortie.id}) }}">Publier</a>
+            {% endif %}
+        {% endif %}
+
+        {# Affichage des boutons quand la sortie est "Ouverte" #}
+        {% if sortie.libelleEtat == 'Ouverte' %}
+            {# Si on est l'organisateur #}
+            {% if app.user.id == sortie.idOrganisateur and sortie.dateHeureDebut > date() %}
+                <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+                {% if inscrit == 'true' %}
+                    <a href="{{ path('sortie_desister', {id: sortie.id}) }}">Se désister</a>
+                {% else %}
+                    <a href="{{ path('sortie_inscrire', {id: sortie.id}) }}">S'inscrire</a>
+                {% endif %}
+                <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
+            {% endif %}
+
+            {# Si on est un participant lambda #}
+            {% if app.user.id != sortie.idOrganisateur %}
+                {# Si on est inscrit #}
+                {% if inscrit == 'true' %}
+                    {# Si la sortie n'est pas encore commencée #}
+                    {% if sortie.dateHeureDebut > date() %}
+                        <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+                        <a href="{{ path('sortie_desister', {id: sortie.id}) }}">Se désister</a>
+                    {% endif %}
+                {% endif %}
+
+                {# Si on n'est pas inscrit #}
+                {% if inscrit == 'false' %}
+                    {# Si la sortie n'est pas encore commencée #}
+                    {% if sortie.dateHeureDebut > date() %}
+                        <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+                    {% endif %}
+                    {# S'il est encore possible de s'inscrire #}
+                    {% if sortie.dateLimiteInscription > date() %}
+                        <a href="{{ path('sortie_inscrire', {id: sortie.id}) }}">S'inscrire</a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+
+        {# Affichage des boutons quand la sortie est "Clôturée" #}
+        {% if sortie.libelleEtat == 'Clôturée' %}
+            {# Si on est l'organisateur #}
+            {% if app.user.id == sortie.idOrganisateur and sortie.dateHeureDebut > date() %}
+                <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+                <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
+            {% endif %}
+            {# Si on n'est pas l'organisateur #}
+            {% if app.user.id != sortie.idOrganisateur and sortie.dateHeureDebut > date() %}
+                {# Si on est inscrit #}
+                {% if inscrit == 'true' %}
+                    {# Si la sortie n'est pas encore commencée #}
+                    {% if sortie.dateHeureDebut > date() %}
+                        <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+                        <a href="{{ path('sortie_desister', {id: sortie.id}) }}">Se désister</a>
+                    {% endif %}
+                {% endif %}
+                {# Si on n'est pas inscrit #}
+                {% if inscrit == 'false' %}
+                    <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+
+
+        {# Affichage des boutons quand la sortie est "Activité en cours" #}
+        {% if sortie.libelleEtat == 'Activité en cours' or sortie.libelleEtat == 'Passée' or sortie.libelleEtat == 'Annulée' %}
+            <a href="{{ path('sortie_details', {id: sortie.id}) }}">Afficher</a>
+        {% endif %}
+
+        {# Affichage du bouton Annuler si on est admin #}
+        {% if is_granted("ROLE_ADMIN") and (sortie.libelleEtat == 'Ouverte' or sortie.libelleEtat == 'Clôturée') %}
+            <a href="{{ path('sortie_annuler', {id: sortie.id}) }}">Annuler</a>
+        {% endif %}
+    </td>
+</tr>

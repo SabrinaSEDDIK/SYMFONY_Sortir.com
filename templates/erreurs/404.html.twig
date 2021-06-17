@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ parent()}} | Erreur 404
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent()}}
+{% endblock %}
+
+{% block body %}
+    <h1 class="text-center mb-5 ">La page demandée est inexistante</h1>
+    <div class="text-center">
+        <img src="{{ asset('img/404-2.png') }}"/>
+    </div>
+{% endblock %}

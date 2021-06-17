@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}
+    {{ parent() }} | Ajout d'utilisateurs
+{% endblock %}
+
+{% block body %}
+
+    <h1 class="my-3">Ajouter un utilisateur</h1>
+    <section class="flex justify-content-center">
+        <!--GAUCHE-->
+        <div class="flex column colonne-sortie mx-5">
+            {{ form_start(participantForm) }}
+            {{ form_row(participantForm.nom) }}
+            {{ form_row(participantForm.prenom) }}
+            {{ form_row(participantForm.pseudo) }}
+            {{ form_row(participantForm.administrateur) }}
+
+        </div>
+        <!--DROITE-->
+        <div class="colonne-sortie">
+            {{ form_row(participantForm.email) }}
+            {{ form_row(participantForm.telephone) }}
+            {{ form_row(participantForm.campus) }}
+
+        </div>
+
+    </section>
+
+    <div class="form-group submit text-center mb-5">
+        <input type="submit" class="btn btn-outline-success mx-3" name="valider" value="Valider" alt="Valider l'inscription" title="Valider l'inscription" ></input>
+        {{ form_end(participantForm) }}
+        <a href="{{ path('participant_liste') }}" alt="Retour à la liste" title="Retour à la liste" class="btn btn-outline-danger mx-3">Annuler</a>
+    </div>
+
+
+
+
+
+{% endblock %}

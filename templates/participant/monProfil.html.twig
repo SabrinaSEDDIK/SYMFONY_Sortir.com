@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ parent() }} |Mon Profil{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+    <h1 class="coll25">Mon Profil</h1>
+    {% if app.user.image %}
+        <img src="{{ asset('img/uploads/'~ app.user.image.nom) }}" alt="Ma Photo" class="photo_profil img-fluid">
+    {% else %}
+        <img src="{{ asset('img/uploads/objet_vide.png') }}" alt="Ma Photo" class="photo_profil img-fluid">
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="container coll25">
+        {% for label, messages in app.flashes(['success', 'warning']) %}
+            {% for message in messages %}
+                <div class="flash-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {{ form_start(affichageProfilForm)}}
+
+        {{ form_row(affichageProfilForm.pseudo) }}
+        {{ form_row(affichageProfilForm.nom) }}
+        {{ form_row(affichageProfilForm.prenom) }}
+        {{ form_row(affichageProfilForm.telephone) }}
+        {{ form_row(affichageProfilForm.email) }}
+        {{ form_row(affichageProfilForm.password.first) }}
+        {{ form_row(affichageProfilForm.password.second) }}
+        {{ form_row(affichageProfilForm.campus) }}
+        {{ form_row(affichageProfilForm.image) }}
+
+        <div class="flex mb-5 justify-content-center">
+            <input type="submit" value="Enregistrer" class="btn-form mr-3">
+            {{ form_end(affichageProfilForm) }}
+            <a href={{path('main_home')}}><button type="button" class="btn-form" value="Retour">Annuler</button></a>
+        </div>
+
+    </div>
+
+    <script>
+        $("input[type=file]").change(function (e){$(this).next('.custom-file-label').text(e.target.files[0].name);})
+    </script>
+
+{% endblock %}
+

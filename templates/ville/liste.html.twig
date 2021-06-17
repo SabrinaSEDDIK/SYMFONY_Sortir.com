@@ -1,0 +1,69 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block title %}
+    {{ parent() }} | Gestion des villes
+{% endblock %}
+
+{% block body %}
+
+    <h1 class="my-3">Gestion des villes</h1>
+
+    {# BARRE DE RECHERCHE #}
+
+    <form action="{{ path('ville_rechercher') }}" method="get">
+        <div class="input-group mb-3 mt-5 mx-auto" style="width: 35%;">
+            <input type="search" class="form-control rounded" placeholder="Le nom contient ..." value="{{ search ?? '' }}" size="30" aria-label="search"
+                   aria-describedby="search-addon" name="nom"/>
+            <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+        </div>
+    </form>
+
+    {# TABLEAU #}
+
+    <table id="table-gestion-villes" class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Ville</th>
+                <th scope="col">Code Postal</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {# FORMULAIRE D'AJOUT/MODIFICATION #}
+
+            <tr id="ligne-formulaire">
+                <td>
+                    {{ form_start(villeForm) }}
+                    {{ form_row(villeForm.nom) }}
+                </td>
+                <td>
+                    {{ form_row(villeForm.codePostal) }}
+                </td>
+                <td>
+                    <button type="submit" class="btn btn-sm btn-success w-100" style="height: 36px;">{{ edit?'Modifier':'Ajouter'}}</button>
+                    {{ form_end(villeForm) }}
+                </td>
+            </tr>
+            {% if villes is empty %}
+                <tr>
+                    <td>Aucune ville disponible</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+            {% else %}
+                {% for ville in villes %}
+                    <tr>
+                        <td>{{ ville.nom |upper }}</td>
+                        <td>{{ ville.codePostal }}</td>
+                        <td><a href="{{ path("ville_modifier", {'id':ville.id}) }}">Modifier</a> - <a href="{{ path("ville_supprimer", {'id':ville.id}) }}"onclick="return confirm('Voulez-vous supprimer la ville sélectionné ?')">Supprimer</a></td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+        </tbody>
+    </table>
+
+{% endblock %}

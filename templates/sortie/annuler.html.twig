@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Annuler une sortie</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            Nom de la sortie :
+        </div>
+        <div class="col-sm-6">
+            {{ sortie.nom }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-sm-4">
+            Date de la sortie :
+        </div>
+        <div class="col-sm-6">
+            {{ sortie.dateHeureDebut | date('d/m/Y') }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-sm-4">
+            Campus :
+        </div>
+        <div class="col-sm-6">
+            {{ sortie.siteOrganisateur.nom }}
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-sm-4">
+            Lieu :
+        </div>
+        <div class="col-sm-6">
+            {{ sortie.lieu.rue ~ ' ' ~ ' - ' ~ sortie.lieu.ville.codePostal ~ ' ' ~sortie.lieu.ville.nom }}
+        </div>
+    </div>
+
+    {{ form_start(annulationSortieForm) }}
+
+    <div class="row mt-3">
+        <div class="col-sm-4">
+            {{ form_label(annulationSortieForm.infosSortie) }}
+        </div>
+        <div class="col-sm-6">
+            {{ form_widget(annulationSortieForm.infosSortie) }}
+        </div>
+    </div>
+    <div class="flex justify-content-center mt-3  mb-5">
+            <div>
+                <button class="btn-form">Enregistrer</button>
+            </div>
+        {{ form_end(annulationSortieForm) }}
+        <div class="ml-3">
+            <a href="{{ path('main_home') }}"><button type="button" class="btn-form">Annuler</button></a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

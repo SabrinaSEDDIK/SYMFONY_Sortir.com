@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+{% block title %}
+    {{ parent() }} | Détails de la sortie
+{% endblock %}
+
+{% block body %}
+    <h1 class="text-center mb-5 ">{{ sortie.nom | capitalize }}</h1>
+    <section class="flex justify-content-center">
+        <!--GAUCHE-->
+        <div class="colonne-details mr-5">
+            <p><span class="font-weight-bold text-secondary">Nom de la sortie :</span><br> {{ sortie.nom | capitalize }}</p>
+            <p><span class="font-weight-bold text-secondary">Date et heure de la sortie :</span><br> {{ sortie.dateHeureDebut|format_datetime("full", "short", locale="fr")| capitalize }}</p>
+            <p><span class="font-weight-bold text-secondary">Date limite d'inscription :</span><br> {{ sortie.dateLimiteInscription |format_datetime("full", "none", locale="fr")| capitalize }}</p>
+            <p><span class="font-weight-bold text-secondary">Nombre de places :</span><br> {{ sortie.nbInscriptionsMax }}</p>
+            <p><span class="font-weight-bold text-secondary">Durée :</span><br> {{ sortie.duree }} minutes</p>
+            <p><span class="font-weight-bold text-secondary">Description et infos :</span><br> {{ sortie.infosSortie| capitalize }}</p>
+        </div>
+        <!--MILIEU-->
+        <div class="colonne-details">
+            <p><span class="font-weight-bold text-secondary">Campus :</span><br> {{ sortie.siteOrganisateur.nom | upper}}</p>
+            <p><span class="font-weight-bold text-secondary">Lieu :</span><br> {{ sortie.lieu.nom | capitalize}}</p>
+            <p><span class="font-weight-bold text-secondary">Rue :</span><br> {{ sortie.lieu.rue | capitalize}}</p>
+            <p><span class="font-weight-bold text-secondary">Ville :</span><br> {{ sortie.lieu.ville.codePostal }} {{  sortie.lieu.ville.nom |upper}}</p>
+            <p><span class="font-weight-bold text-secondary">Latitude :</span><br> {{ sortie.lieu.latitude }}</p>
+            <p><span class="font-weight-bold text-secondary">Longitude :</span><br> {{ sortie.lieu.longitude }}</p>
+        </div>
+        <!-- DROITE -->
+        <div class="colonne-details">
+            <p><span class="font-weight-bold text-secondary">État de la sortie :</span> {{ sortie.etat.libelle |upper }}</p>
+            <h5 class="mb-4">Liste des participants inscrits : </h5>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Pseudo</th>
+                        <th scope="col">Nom</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for participant in sortie.participants %}
+                        <tr>
+                            <td>{{participant.pseudo }}</td>
+                            <td><a href="{{ path('participant_profil', {'id': participant.id}) }}">{{participant.prenom|capitalize }} {{ participant.nom|upper }}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <div class="text-center mb-5">
+
+        {%  if app.user not in sortie.participants and "now" < sortie.dateLimiteInscription and sortie.etat.id == 2 %}
+            <a href="{{ path('sortie_inscrire', {'id' : sortie.id}) }}" alt="S'inscrire" title="S'inscire" class="btn btn-outline-danger mx-3">S'inscrire</a>
+        {% else %}
+            {% if app.user in sortie.participants and "now" < sortie.dateHeureDebut and sortie.etat.id in [2,3] %}
+                <a href="{{ path('sortie_desister', {'id' : sortie.id}) }}" alt="Se désinscrire" title="Se désinscrire" class="btn btn-outline-danger mx-3">Se désinscrire</a>
+            {% endif %}
+        {% endif %}
+        {% if app.user==sortie.organisateur and sortie.etat.id==1 %}
+            <a href="{{ path('sortie_modifier', {'id' : sortie.id}) }}" alt="Modifier" title="Modifier" class="btn btn-outline-danger mx-3">Modifier</a>
+            <a href="{{ path('sortie_publier', {'id' : sortie.id}) }}" alt="Publier" title="Publier" class="btn btn-outline-danger mx-3">Publier</a>
+            <a href="{{ path('sortie_supprimer', {'id' : sortie.id}) }}" alt="Supprimer" title="Supprimer" class="btn btn-outline-danger mx-3">Supprimer</a>
+        {% endif %}
+
+        {% if (app.user==sortie.organisateur or is_granted('ROLE_ADMIN')) and sortie.etat.id in [2,3]%}
+            <a href="{{ path('sortie_annuler', {'id' : sortie.id}) }}" alt="Annuler la sortie" title="Annuler la sortie" class="btn btn-outline-danger mx-3">Annuler la sortie</a>
+        {% endif %}
+
+    </div>
+
+
+{% endblock %}
+
+
+

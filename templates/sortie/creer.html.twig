@@ -1,0 +1,294 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}
+    {{ parent() }} | Nouvelle sortie
+{% endblock %}
+
+{% block body %}
+
+    <h1 class="text-center mb-5 ">Organiser une sortie</h1>
+
+    <section class="flex justify-content-center">
+        <!--GAUCHE-->
+        <div class="flex column colonne-sortie mx-5">
+            {{ form_start(sortieForm) }}
+            {{ form_row(sortieForm.nom) }}
+            {{ form_row(sortieForm.dateHeureDebut) }}
+            {{ form_row(sortieForm.dateLimiteInscription) }}
+            {{ form_row(sortieForm.nbInscriptionsMax) }}
+            {{ form_row(sortieForm.duree) }}
+            {{ form_row(sortieForm.infosSortie) }}
+        </div>
+        <!--DROITE-->
+        <div class="colonne-sortie">
+            {{ form_row(sortieForm.siteOrganisateur) }}
+            {{ form_row(sortieForm.ville) }}
+            {{ form_row(sortieForm.lieu) }}
+            <button type="button" id="plus" class="btn btn-outline-secondary mb-3">Lieu non disponible ? Ajouter <i class="fas fa-plus mx-2"></i></button>
+            {{ form_row(sortieForm.rue, {'attr': {'value': sortie.lieu.rue ?? '' } } ) }}
+            {{ form_row(sortieForm.codePostal, {'attr': {'value': sortie.lieu.ville.codePostal ?? '' } } ) }}
+            {{ form_row(sortieForm.latitude, {'attr': {'value': sortie.lieu.latitude ?? '' } } ) }}
+            {{ form_row(sortieForm.longitude, {'attr': {'value': sortie.lieu.longitude ?? '' } } ) }}
+        </div>
+
+    </section>
+
+    <div class="form-group submit text-center mb-5">
+        <input type="submit" class="btn btn-outline-danger mx-3" name="valider" value="Enregistrer sans publier" alt="Les inscriptions ne seront pas encore ouvertes" title="La sortie sera visible uniquement par vous" ></input>
+        <input type="submit" class="btn btn-outline-danger mx-3" name="valider" value="Publier la sortie" alt="Les inscriptions seront ouvertes" title="La sortie sera visible par tout le monde" ></button>
+        {{ form_end(sortieForm) }}
+        <a href="{{ path('main_home') }}" alt="Retour à l'accueil" title="Retour à l'accueil" class="btn btn-outline-danger mx-3">Annuler</a>
+    </div>
+
+    <div id="modal">
+        <div id="modal-form">
+            <h3 class="text-center mb-4">Ajouter un lieu</h3>
+            <span id="ajout-error" class="sortie-erreur ml-3 mb-2"></span>
+            <div class="flex justify-content-center">
+                <div id="modal-gauche" class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Lieu : </label>
+                        <br><span id="lieu-error" class="sortie-erreur"></span>
+                        <input type="text" id="modal-lieu" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Latitude : </label>
+                        <br><span id="latitude-error" class="sortie-erreur"></span>
+                        <input type="number" id="modal-latitude" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Longitude : </label>
+                        <br><span id="longitude-error" class="sortie-erreur"></span>
+                        <input type="number" id="modal-longitude" class="form-control">
+                    </div>
+                </div>
+
+                <div id="modal-droite" class="col-md-6">
+                    <div class="form-group">
+                        <label for="">Rue : </label>
+                        <br><span id="rue-error" class="sortie-erreur"></span>
+                        <input type="text" id="modal-rue" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Code postal : </label>
+                        <br><span id="cp-error" class="sortie-erreur"></span>
+                        <input type="text" id="modal-cp" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Ville : </label>
+                        <br><span id="ville-error" class="sortie-erreur"></span>
+                        <input type="text" id="modal-ville" class="form-control">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group submit text-center">
+                <button type="submit" id="modal-submit" class="btn btn-primary my-3 mx-3">Valider</button>
+                <button type="button" id="close-modal" class="btn btn-outline-primary mx-3">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{# JAVASCRIPT #}
+
+
+{% block javascripts %}
+    {{parent()}}
+    <script>
+        // Lorsque le document est chargé
+        $(document).ready(()=>
+        {
+
+            //variable de stockage des résultats de requête
+            let data;
+            //champs "ville" et "lieu"
+            let citySelector = $("#sortie_ville");
+            let lieuSelector = $("#sortie_lieu");
+
+            //On enlève les options du champ "lieu" si aucune ville n'est sélectionnée
+            if(document.querySelector("#sortie_ville").value == ""){
+                lieuSelector.html("");
+            }
+
+            //{# PARTIE 1 : Lorsque la valeur du champ "ville" change #}
+
+            citySelector.change(function()
+            {
+                document.querySelector("#sortie_rue").value = "";
+                document.querySelector("#sortie_codePostal").value = "";
+                document.querySelector("#sortie_latitude").value = "";
+                document.querySelector("#sortie_longitude").value = "";
+                lieuSelector.html("");
+
+                // Construction de l'url qui sera utilisée pour le "fetch"
+                let path = "{{path("lieu_json")}}";
+                let request = "?city=" + citySelector.val(); //Permet d'effectuer la requête avec la valeur saisie dans le champ "ville"
+                let url = path+request;
+
+                fetch(url, {
+                    method:"GET"
+                })
+                    .then(response=> response.json()) //Conversion de la réponse de la requête au format JSON
+                    .then(results=> {
+
+                        //Je garde en mémoire les résultats de la requête
+                        data = results
+
+                        //Si une ville est renseignée ET qu'elle possède un ou plusieurs lieux
+                        if(citySelector.val() != "" && results != "")
+                        {
+                            document.querySelector("#sortie_codePostal").value = results[0].codePostal;
+                            //On ajoute une valeur par défaut au champ "lieu" en fonction de la ville qui a été saisie dans le champ "ville"
+                            lieuSelector.append("<option value>Selectionnez un lieu de " + citySelector.find("option:selected").text() + " ...</option>");
+                        }
+                        else if(results == ""){
+                            lieuSelector.append("<option value>Aucun lieu disponible</option>");
+                        }
+
+                        //Pour chaque lieu récupéré, on ajoute une option dans le select du champ "lieu"
+                        $.each(results, function(key, lieu){
+                            lieuSelector.append("<option value='" + lieu.id + "'>" + lieu.nom + "</option>");
+                        })
+                    })
+                    //En cas d'erreur, un peu d'ergonomie...
+                    .catch(error=> {
+                        alert("Une erreur est survenue. Veuillez réessayer");
+                        console.log(error);
+                    })
+            })
+
+            //{# PARTIE 2 : Lorsque la valeur du champ "lieu" change#}
+
+            lieuSelector.change(function(){
+
+                //Pour chaque lieu récupéré
+                for(let lieu of data)
+                {
+                    //Si le lieu sur lequel on boucle actuellement est égal à celui dans le champ "lieu"
+                    if(lieuSelector.find("option:selected").text() === lieu.nom)
+                    {
+                        //On remplit les différents champs du formulaire avec les bons attributs du lieu
+                        document.querySelector("#sortie_rue").value = lieu.rue;
+                        document.querySelector("#sortie_latitude").value = lieu.latitude;
+                        document.querySelector("#sortie_longitude").value = lieu.longitude;
+                    }
+                }
+            })
+
+            //{# PARTIE 3 : Ajout d'un nouveau lieu #}
+
+            //Faire apparaître la modal par le +
+            $("#plus").click(function()
+            {
+                $("#modal").css("visibility", "visible");
+                $("#modal-form").css("opacity", "1");
+                $("#modal-form").css("visibility", "visible");
+                $("#modal-form").css("transform", "scale(1)");
+
+            })
+
+            //Fermer la modal par le bouton retour
+            $("#close-modal").click(function(){ closeModal() })
+
+            function closeModal()
+            {
+                $("#modal").css("visibility", "hidden");
+                $("#modal-form").css("opacity", "0");
+                $("#modal-form").css("visibility", "hidden");
+                $("#modal-form").css("transform", "scale(0.8)");
+            }
+
+            //Lorsqu'on submit le formulaire de la modal
+            $("#modal-submit").click(function()
+            {
+                let modalVille = $("#modal-ville").val().trim();
+                let modalCp = $("#modal-cp").val().trim()
+                let modalLieu = $("#modal-lieu").val().trim();
+                let modalRue = $("#modal-rue").val().trim();
+                let modalLatitude = $("#modal-latitude").val().trim();
+                let modalLongitude = $("#modal-longitude").val().trim();
+
+
+                if(modalVille!=""&&modalCp!=""&&modalLieu!=""&&modalRue!=""&&modalLatitude!=""&&modalLongitude!="")
+                {
+                    // envoi des données - vérification sera côté serveur
+                    fetch("{{ path("lieu_create_json") }}",
+                        {
+                            method:"POST",
+                            headers:
+                                {
+                                    'Accept': 'application/json, text/plain, */*',
+                                    'Content-Type': 'application/json'
+                                },
+                            body:JSON.stringify
+                            ({
+                                modalVille,
+                                modalCp,
+                                modalLieu,
+                                modalRue,
+                                modalLatitude,
+                                modalLongitude
+                            })
+                        })
+                        .then(response=> response.json())
+                        .then(lieu=> {
+                            if(lieu.errors)
+                            {
+                                console.log("on récupère des erreurs");
+                                //identifier le type d'erreur : lieu déjà existant ou erreurs de remplissage des champs
+                                if(lieu.errors.lieuExistant)
+                                {
+                                    $('#ajout-error').text("Ce lieu existe déjà en base de données");
+                                }
+                                else if(lieu.errors.champsInvalides)
+                                {
+                                    $data = lieu.errors.champsInvalides
+                                    console.log("Des champs sont invalides");
+                                    console.log($data);
+                                    $('#lieu-error').text($data.verifLieu===false?"Ne doit pas dépasser 255 caractères":"");
+                                    $('#latitude-error').text($data.verifLatitude===false?"Valeur comprise entre -90 et 90":"");
+                                    $('#longitude-error').text($data.verifLongitude===false?"Valeur comprise entre -180 et 180":"");
+                                    $('#rue-error').text($data.verifRue===false?"Ne doit pas dépasser 255 caractères":"");
+                                    $('#cp-error').text($data.verifCp===false?"Format incorrect":"");
+                                    $('#ville-error').text($data.verifVille===false?"Ne peut contenir de chiffres":"");
+                                }
+                            }
+                            else
+                            {
+                                console.log(lieu);
+                                lieuSelector.html("");
+                                citySelector.append("<option selected='selected' value='" + lieu.ville.id + "'>" + lieu.ville.nom + "</option>");
+                                lieuSelector.append("<option selected='selected' value='" + lieu.id + "'>" + lieu.nom + "</option>");
+                                $("#sortie_rue").val(lieu.rue);
+                                $("#sortie_codePostal").val(lieu.ville.codePostal);
+                                $("#sortie_latitude").val(lieu.latitude);
+                                $("#sortie_longitude").val(lieu.longitude);
+                                closeModal();
+                            }
+
+                        })
+                        .catch(erreur=>{
+                            alert("Erreur de communication avec la base de données")
+                            console.log(erreur);
+                        })
+                }
+                else // des champs sont vides
+                {
+                    $('#ajout-error').text("Veuillez remplir tous les champs");
+                }
+
+            })
+        })
+
+    </script>
+
+{% endblock %}
+
+
+

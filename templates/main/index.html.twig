@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Accueil{% endblock %}
+
+{% block body %}
+    {% set inscrit = 'false' %}
+    <div class="container-fluid">
+
+        {{ form_start(formulaireListeAccueil) }}
+        {# {{ form_widget(formulaireListeAccueil) }} #}
+
+        <!-- Nouveau code -->
+
+        <div class="row container mx-auto align-items-center">
+            <div class="col-sm-12 col-md-6">
+                <div class="row text-sm-center text-md-left mt-2">
+                    <div class="col-sm-12 col-lg-4">
+                        {{ form_label(formulaireListeAccueil.campus) }}
+                    </div>
+                    <div class="col-sm-12 offset-lg-2 col-lg-6">
+                        {{ form_widget(formulaireListeAccueil.campus) }}
+                    </div>
+                </div>
+
+                <div class="row text-sm-center text-md-left mt-2">
+                    <div class="col-sm-12 col-lg-6">
+                        {{ form_label(formulaireListeAccueil.nom) }}
+                    </div>
+                    <div class="col-sm-12 col-lg-6">
+                        {{ form_widget(formulaireListeAccueil.nom) }}
+                    </div>
+                </div>
+
+                <div class="row text-sm-center text-md-left mt-2">
+                    <div class="col-sm-12 col-lg-3">
+                        {{ form_label(formulaireListeAccueil.dateDebutRecherche) }}
+                    </div>
+                    <div class="col-sm-12 col-lg-9">
+                        {{ form_widget(formulaireListeAccueil.dateDebutRecherche) }}
+                    </div>
+                    <div class="col-sm-12 col-lg-3">
+                        {{ form_label(formulaireListeAccueil.dateFinRecherche) }}
+                    </div>
+                    <div class="col-sm-12 col-lg-9">
+                        {{ form_widget(formulaireListeAccueil.dateFinRecherche) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-4">
+                {{ form_row(formulaireListeAccueil.isOrganisateur) }}
+                {{ form_row(formulaireListeAccueil.isRegistered) }}
+                {{ form_row(formulaireListeAccueil.isNotRegistered) }}
+                {{ form_row(formulaireListeAccueil.isFinished) }}
+            </div>
+            <div class="col-sm-12 col-md-2">
+                <button class="btn btn-outline-secondary w-100 py-3">Rechercher</button>
+            </div>
+        </div>
+        <!-- -->
+
+        {{ form_end(formulaireListeAccueil) }}
+    </div>
+
+
+
+        <table class="table table-striped table-responsive my-5" id="table-users">
+            <thead>
+                <tr>
+                    <th scope="col">Sortie</th>
+                    <th scope="col">Quand ?</th>
+                    <th scope="col">Clôture des inscriptions</th>
+                    <th scope="col">Inscrits/Places</th>
+                    <th scope="col">Etat</th>
+                    <th scope="col">Inscrit</th>
+                    <th scope="col">Organisateur</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+
+
+            {% for sortie in sorties %}
+                {# Si l'état est a créée, on vérifie que l'utilisateur est l'organisateur #}
+                {% if sortie.libelleEtat == 'Créée' %}
+                    {% if app.user.id == sortie.idOrganisateur %}
+                        {# On affiche la sortie #}
+                        {%  include('main/ligneTableauSortie.html.twig') %}
+                    {% endif %}
+                {% else %}
+                    {%  include('main/ligneTableauSortie.html.twig') %}
+                {% endif %}
+
+                {% set inscrit = 'false' %}
+            {% endfor %}
+        </table>
+{% endblock %}

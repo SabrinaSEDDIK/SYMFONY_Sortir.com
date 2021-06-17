@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+
+        <title>{% block title %}Sortir.com{% endblock %}</title>
+
+        {% block stylesheets %}
+            <!--JQUERY-->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous"></script>
+
+            <!--BOOTSTRAP-->
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js" integrity="sha384-LtrjvnR4Twt/qOuYxE721u19sVFLVSA4hf/rRt6PrZTmiPltdZcI7q7PXQBYTKyf" crossorigin="anonymous"></script>
+            <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+            <!--FONT AWESOME 5-->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+
+            <!--GOOGLE FONTS-->
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+            <link href="https://fonts.googleapis.com/css2?family=Engagement&family=The+Girl+Next+Door&display=swap" rel="stylesheet">
+
+            <!--CSS-->
+            <link rel="stylesheet" href="{{ asset('css/normalize.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+            <link rel="icon" href="{{ asset('img/unnamed.png') }}">
+        {% endblock %}
+    </head>
+
+    <body>
+    {% block header %}
+        <header>
+            <nav class="flex mb-4 justify-content-between align-items-center" id="nav">
+
+                {# NAVBAR PARTIE 1 : LOGO RETOUR A L'ACCUEIL #}
+
+                <div class="flex ml-5">
+                    <figure id="logo-mini"><img src="{{ asset('img/unnamed.png') }}" alt="Logo Sortir.com"></figure>
+                    <a href="{{ path('main_home') }}" id="a-titre-navbar"><div id="titre-navbar">Sortir.com</div></a>
+                </div>
+
+                {# NAVBAR PARTIE 2 : MENU #}
+
+                <ul class="d-flex align-items-center pt-3">
+                    <li><a href="{{ path('main_home') }}">Accueil</a></li>
+                    {% if is_granted("ROLE_ADMIN") %}
+                        <li><a href="{{ path('participant_liste')}}">Utilisateurs</a></li>
+                        <li><a href="{{ path('ville_gestion')}}">Villes</a></li>
+                        <li><a href="{{ path('admin_campus') }}">Campus</a></li>
+                    {% endif %}
+
+                </ul>
+
+
+                {# NAVBAR PARTIE 3 : CREER UNE SORTIE + DROPDOWN #}
+
+                <div class="btn-group mr-2 ">
+                    <div class="row align-items-center mr-2">
+                        <a href="{{ path('sortie_creer') }}" class="btn btn-outline-secondary py-2">Organiser une sortie</a>
+                    </div>
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user"></i> {{ app.user.nom??""|upper }} {{ app.user.prenom?? "" }}.
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{{ path('participant_monprofil') }}">Mon profil</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{{ path('app_logout') }}">Se déconnecter</a>
+                    </div>
+                </div>
+
+            </nav>
+        </header>
+    {% endblock %}
+
+        {# lire et afficher les messages flash #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="flash flash-{{ label }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <main>
+            {% block body %}
+            {% endblock %}
+        </main>
+
+        <footer id="footer" class="flex">
+            <div class="align-items-center mx-auto">
+                <div class="mx-auto my-3 text-white">&copy;Sortir.com {{ "now" | date('Y') }}</div>
+            </div>
+        </footer>
+
+        {% block javascripts %}
+        {% endblock %}
+    </body>
+</html>

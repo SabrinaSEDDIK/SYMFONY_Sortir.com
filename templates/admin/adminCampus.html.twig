@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Gestion Campus{% endblock %}
+
+{% block body %}
+
+    <h1 class="my-3">Gérer les campus</h1>
+
+    {# BARRE DE RECHERCHE #}
+    <form action="{{ path('admin_campus_rechercher') }}" method="get">
+        <div class="text-center mb-3">
+            <div class="input-group mb-3 mt-5 mx-auto" style="width: 35%;">
+                <input type="search" class="form-control rounded" placeholder="Le nom contient ..." value="{{ search ?? '' }}" size="30" aria-label="search"
+                       aria-describedby="search-addon" name="nom"/>
+                <button type="submit" class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+            </div>
+    </form>
+
+        <br>
+    {# TABLEAU #}
+
+<div id="table-gestion-campus">
+        <table  class="table table-striped ">
+            <thead>
+            <tr>
+                <th scope="col">Campus</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {# FORMULAIRE D'AJOUT/MODIFICATION #}
+            <tr id="ligne-formulaire">
+                <td>
+                    {{ form_start(adminCampusForm) }}
+                    {{ form_row(adminCampusForm.nom) }}
+                </td>
+
+                <td>
+                    <button type="submit" class="btn btn-sm btn-success w-100" style="height: 36px;">{{ edit?'Modifier':'Ajouter'}}</button>
+                    {{ form_end(adminCampusForm) }}
+                </td>
+            </tr>
+            {% if adminCampus is empty %}
+            <tr>
+                <td>Aucun campus disponible</td>
+                <td>-</td>
+            </tr>
+            {% else %}
+                {% for campus in adminCampus %}
+                    <tr>
+                        <td>
+                            {{ campus.nom |upper }}
+                        </td>
+                        <td><a href="{{ path('admin_campusModifier',{'id':campus.id}) }}">Modifier</a> -
+                            <a href="{{ path('admin_campusSupprimer',{'id':campus.id}) }}"
+                               onclick="return confirm('Voulez-vous supprimer le campus sélectionné ?')">Supprimer</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+</div>
+{% endblock %}
+
