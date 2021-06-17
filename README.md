@@ -1,4 +1,5 @@
 # SYMFONY_Sortir.com
  Gestion des sorties entre étudiants de l'ENI
-![sortir_connexion](https://user-images.githubusercontent.com/77495411/122406298-05cd3f00-cf81-11eb-92d2-e559ad4af075.png)
-![sortir_accueil](https://user-images.githubusercontent.com/77495411/122406318-0a91f300-cf81-11eb-8627-f202b45b5ad3.png)
+![sortir_connexion](https://user-images.githubusercontent.com/77495411/122408862-fb13a980-cf82-11eb-919d-02f7565dfaad.png)
+![sortir_accueil_2](https://user-images.githubusercontent.com/77495411/122408795-ed5e2400-cf82-11eb-9868-2a03b0a19780.png)
+
